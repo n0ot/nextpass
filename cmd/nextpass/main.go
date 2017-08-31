@@ -22,6 +22,7 @@ var (
 	additional bool
 	noNewline  bool
 	verbose    bool
+	version    bool
 	randSrc    string
 )
 
@@ -34,6 +35,7 @@ func init() {
 	flag.BoolVarP(&additional, "additional", "A", false, "read additional characters from standard input, encoded in UTF-8; newline characters will NOT be ignored")
 	flag.BoolVarP(&noNewline, "no-newline", "n", false, "Don't print a newline after the password")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "print more information, in addition to the generated password")
+	flag.BoolVarP(&version, "version", "V", false, "print the version and exit")
 	flag.StringVarP(&randSrc, "random-source", "r", "", "specify a file to be used as an alternate source of randomness. Don't use this unless you know what you're doing.")
 	flag.Usage = usage
 	flag.Parse()
@@ -63,6 +65,11 @@ Examples:
 }
 
 func main() {
+	if version {
+		fmt.Printf("nextpass version %s\n", nextpass.Version)
+		os.Exit(0)
+	}
+
 	var alphabet []rune
 	if lower {
 		alphabet = append(alphabet, []rune(nextpass.LowerChars)...)

@@ -4,7 +4,8 @@ Whenever you need to create your next password, use nextpass.
 
 ```sh
 go get -u github.com/n0ot/nextpass
-go install github.com/n0ot/nextpass/cmd/nextpass
+# change to github.com/n0ot/nextpass
+make install
 ```
 
 ## Usage

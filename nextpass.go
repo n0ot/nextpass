@@ -20,6 +20,8 @@ const (
 	SpecialChars = "`" + `~!@#$%^&*()-=_+[]{}\|;:'"/?<>,.`
 )
 
+var Version = "unset"
+
 // A Generator contains options to generate passwords.
 type Generator struct {
 	alphabet []rune
