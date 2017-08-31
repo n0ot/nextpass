@@ -9,6 +9,8 @@ endif
 
 .PHONY: all clean install windows linux freebsd darwin
 
+nextpass: current
+
 all: windows linux freebsd darwin current
 
 windows: bin

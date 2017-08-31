@@ -3,11 +3,24 @@ It can either be used on the command line, or imported by other go projects.
 Whenever you need to create your next password, use nextpass.
 
 ```sh
-go get -u github.com/n0ot/nextpass
-# change to github.com/n0ot/nextpass
-go get -u ./...
+go get -u github.com/n0ot/nextpass/...
+```
+Change to `github.com/n0ot/nextpass`  
+Build:
+```sh
+make
+```
+Or install:
+```sh
 make install
-# make by itself cross compiles to windows, linux, freebsd, and darwin (all amd64)
+```
+Cross compile to Windows, Linux, FreeBSD, and Darwin:
+```sh
+make all
+```
+Or
+```sh
+make windows
 ```
 
 ## Usage
