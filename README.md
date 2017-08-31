@@ -5,7 +5,9 @@ Whenever you need to create your next password, use nextpass.
 ```sh
 go get -u github.com/n0ot/nextpass
 # change to github.com/n0ot/nextpass
+go get -u ./...
 make install
+# make by itself cross compiles to windows, linux, freebsd, and darwin (all amd64)
 ```
 
 ## Usage
