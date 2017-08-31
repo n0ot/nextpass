@@ -38,15 +38,19 @@ nextpass [options]
     -n, --no-newline    Don't print a newline after the password
     -r, --random-source string   specify a file to be used as an alternate source of randomness. Don't use this unless you know what you're doing.
     -S, --special       include special characters, which are the printable ascii characters excluding letters, digits, and the space
+    -t, --type string            Use a predefined character set.
     -U, --upper         include uppercase letters A-Z
     -v, --verbose       print more information, in addition to the generated password
     -V, --version                print the version and exit
 
-If the included characters are not enough,
-pass your favorite foreign characters or emojis into standard input.
+    Character sets available with --type: base64|base58|url|hex|octal|binary
 
-Examples:
+    If the included characters are not enough,
+    use -A, and pass your favorite foreign characters or emojis into standard input.
 
+    Duplicate characters are not allowed in the final alphabet
+
+## Examples
 ```sh
 nextpass -l 32 -LUDS
 ```
@@ -57,6 +61,11 @@ lowercase and uppercase letters, digits, and special characters.
 echo -n ABCDEF | nextpass -DA
 ```
 generates a 64 digit hexadecimal string (256 bits).
+
+```sh
+nextpass -t hex
+```
+does the same thing as above.
 
 ## Security
 [crypto/rand](https://godoc.org/crypto/rand) is used as a source of random entropy by default.
