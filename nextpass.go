@@ -65,37 +65,33 @@ func (g Generator) Alphabet() []rune {
 	return g.alphabet
 }
 
-// generate generates a password.
-func (g Generator) Generate() (string, error) {
+// Generate generates a password.
+// The password is returned, along with the number of bytes read from the source of entropy.
+func (g Generator) Generate() (password string, n int, err error) {
 	if g.length == 0 {
-		return "", nil
+		return "", 0, nil
 	}
 	if len(g.alphabet) == 0 {
-		return "", errors.New("Alphabet has length 0")
+		return "", 0, errors.New("Alphabet has length 0")
 	}
 
-	// Reading from g.source once for each character would read more bits than necessary.
-	// By reading only once, and then encoding into the given alphabet,
-	// at most 7 extra bits will be read.
-	base := len(g.alphabet)
-	bigBase := big.NewInt(int64(base))
-	max := g.Max()
-	num, err := rand.Int(g.source, max)
+	// By reading from g.source once for the entire password,
+	// it is possible to consume less entropy.
+	base := big.NewInt(int64(len(g.alphabet)))
+	r := newReadCounter(g.source)
+	num, err := rand.Int(r, g.Max())
 	if err != nil {
-		return "", errors.Wrap(err, "Cannot get random data")
+		return "", r.count, errors.Wrap(err, "Cannot get random data")
 	}
+
 	m := big.NewInt(0)
-	var password []rune
-	for i := 0; i < g.length; i++ {
-		num.DivMod(num, bigBase, m)
-		password = append(password, g.alphabet[int(m.Int64())])
+	passChars := make([]rune, g.length)
+	// Add characters in reverse, so that the encoded characters
+	// follow the same order as the bytes read from g.source.
+	for i := g.length - 1; i >= 0; i-- {
+		num.DivMod(num, base, m)
+		passChars[i] = g.alphabet[int(m.Int64())]
 	}
 
-	// Reverse password,
-	// so the encoded characters appear in the same order as the read bytes.
-	for i, j := 0, len(password)-1; i < j; i, j = i+1, j-1 {
-		password[i], password[j] = password[j], password[i]
-	}
-
-	return string(password), nil
+	return string(passChars), r.count, nil
 }

@@ -106,18 +106,20 @@ func main() {
 		defer r.Close()
 		g.SetRandomSource(r)
 	}
+
+	password, n, err := g.Generate()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot generate password: %v\n", err)
+		os.Exit(1)
+	}
+
 	if verbose {
 		fmt.Printf(`password length: %d
 alphabet size: %d
 complexity in bits: about %d
+bytes read: %d
 
-`, length, len(alphabet), g.Bits())
-	}
-
-	password, err := g.Generate()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Cannot generate password: %v\n", err)
-		os.Exit(1)
+`, length, len(alphabet), g.Bits(), n)
 	}
 
 	fmt.Print(password)
