@@ -20,6 +20,7 @@ var (
 	digits     bool
 	special    bool
 	additional bool
+	charClass  string
 	noNewline  bool
 	verbose    bool
 	version    bool
@@ -33,6 +34,7 @@ func init() {
 	flag.BoolVarP(&digits, "digits", "D", false, "include digits 0-9")
 	flag.BoolVarP(&special, "special", "S", false, "include special characters, which are the printable ascii characters excluding letters, digits, and the space")
 	flag.BoolVarP(&additional, "additional", "A", false, "read additional characters from standard input, encoded in UTF-8; newline characters will NOT be ignored")
+	flag.StringVarP(&charClass, "type", "t", "", "Use a predefined character set.")
 	flag.BoolVarP(&noNewline, "no-newline", "n", false, "Don't print a newline after the password")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "print more information, in addition to the generated password")
 	flag.BoolVarP(&version, "version", "V", false, "print the version and exit")
@@ -51,8 +53,12 @@ create your next password, use nextpass.
 
 	flag.PrintDefaults()
 	fmt.Fprintf(os.Stderr, `
+Character sets available with --type: base64|base58|url|hex|octal|binary
+
 If the included characters are not enough,
 use -A, and pass your favorite foreign characters or emojis into standard input.
+
+Duplicate characters are not allowed in the final alphabet
 
 Examples:
     %s -l 32 -LUDS
@@ -60,8 +66,10 @@ Examples:
         lowercase and uppercase letters, digits, and special characters.
     echo -n ABCDEF | %s -DA
         generates a 64 digit hexadecimal string (256 bits).
+    %s -t hex
+        does the same thing as above.
 
-`, os.Args[0], os.Args[0])
+`, os.Args[0], os.Args[0], os.Args[0])
 }
 
 func main() {
@@ -71,6 +79,25 @@ func main() {
 	}
 
 	var alphabet []rune
+	switch charClass {
+	case "base64":
+		alphabet = []rune(nextpass.Base64Chars)
+	case "base58":
+		alphabet = []rune(nextpass.Base58Chars)
+	case "url":
+		alphabet = []rune(nextpass.URLChars)
+	case "hex":
+		alphabet = []rune(nextpass.HexChars)
+	case "octal":
+		alphabet = []rune(nextpass.OctalChars)
+	case "binary":
+		alphabet = []rune(nextpass.BinaryChars)
+	case "":
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown character set name: %s\n", charClass)
+		os.Exit(1)
+	}
+
 	if lower {
 		alphabet = append(alphabet, []rune(nextpass.LowerChars)...)
 	}
@@ -93,10 +120,16 @@ func main() {
 
 	if len(alphabet) == 0 {
 		fmt.Fprintln(os.Stderr, "No characters included in password; cannot generate.\nDid you forget to enable one of the character types?")
+		usage()
 		os.Exit(1)
 	}
 
-	g := nextpass.NewGenerator(alphabet, int(length))
+	g, err := nextpass.NewGenerator(alphabet, int(length))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Cannot create new password generator: %v\n", err)
+		os.Exit(1)
+	}
+
 	if randSrc != "" {
 		r, err := os.Open(randSrc)
 		if err != nil {

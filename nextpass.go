@@ -18,6 +18,12 @@ const (
 	UpperChars   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	DigitChars   = "0123456789"
 	SpecialChars = "`" + `~!@#$%^&*()-=_+[]{}\|;:'"/?<>,.`
+	Base58Chars  = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+	Base64Chars  = DigitChars + UpperChars + LowerChars + "+/"
+	URLChars     = DigitChars + UpperChars + LowerChars + "-._~"
+	HexChars     = "0123456789ABCDEF"
+	OctalChars   = "01234567"
+	BinaryChars  = "01"
 )
 
 var Version = "unset"
@@ -30,9 +36,23 @@ type Generator struct {
 }
 
 // NewGenerator creates a Generator from the given alphabet and length.
-// The default source of random bytes, crypto/rand.Reader will be used.
-func NewGenerator(alphabet []rune, length int) Generator {
-	return Generator{alphabet, length, rand.Reader}
+// Unless SetRandomSource is called, the default source of random bytes, crypto/rand.Reader will be used.
+// An error is returned if len(alphabet) == 0,
+// or if there are duplicate characters in the alphabet.
+func NewGenerator(alphabet []rune, length int) (Generator, error) {
+	if len(alphabet) == 0 {
+		return Generator{}, errors.New("Alphabet has length 0")
+	}
+
+	set := make(map[rune]int)
+	for i, v := range alphabet {
+		if pos, exists := set[v]; exists {
+			return Generator{}, errors.Errorf("Duplicate character %q in alphabet at offset %d; already found at offset %d", v, i, pos)
+		}
+		set[v] = i
+	}
+
+	return Generator{alphabet, length, rand.Reader}, nil
 }
 
 // SetRandomSource changes the source of entropy when generating a password.
@@ -70,9 +90,6 @@ func (g Generator) Alphabet() []rune {
 func (g Generator) Generate() (password string, n int, err error) {
 	if g.length == 0 {
 		return "", 0, nil
-	}
-	if len(g.alphabet) == 0 {
-		return "", 0, errors.New("Alphabet has length 0")
 	}
 
 	// By reading from g.source once for the entire password,
