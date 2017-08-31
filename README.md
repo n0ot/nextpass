@@ -22,6 +22,7 @@ nextpass [options]
     -S, --special       include special characters, which are the printable ascii characters excluding letters, digits, and the space
     -U, --upper         include uppercase letters A-Z
     -v, --verbose       print more information, in addition to the generated password
+    -V, --version                print the version and exit
 
 If the included characters are not enough,
 pass your favorite foreign characters or emojis into standard input.
