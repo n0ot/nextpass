@@ -27,7 +27,7 @@ current: bin
 	go build $(BUILDFLAGS) -o bin/$(CURRENT) cmd/nextpass/main.go
 
 bin:
-	rm -rf bin
+	mkdir bin
 
 install:
 	go install $(BUILDFLAGS) $(PACKAGE)/cmd/nextpass
