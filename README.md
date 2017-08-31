@@ -1,4 +1,7 @@
-Nextpass generates cryptographically secure passwords.
+# Nextpass generates cryptographically secure passwords.
+[![GoDoc](https://godoc.org/github.com/n0ot/nextpass?status.svg)](https://godoc.org/github.com/n0ot/nextpass)
+[![Sourcegraph](https://sourcegraph.com/github.com/n0ot/nextpass/-/badge.svg)](https://sourcegraph.com/github.com/n0ot/nextpass/?badge)
+
 It can either be used on the command line, or imported by other go projects.
 Whenever you need to create your next password, use nextpass.
 
