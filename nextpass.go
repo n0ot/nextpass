@@ -79,7 +79,6 @@ func (g Generator) Generate() (string, error) {
 	// at most 7 extra bits will be read.
 	base := len(g.alphabet)
 	bigBase := big.NewInt(int64(base))
-	zero := big.NewInt(0)
 	max := g.Max()
 	num, err := rand.Int(g.source, max)
 	if err != nil {
@@ -87,11 +86,13 @@ func (g Generator) Generate() (string, error) {
 	}
 	m := big.NewInt(0)
 	var password []rune
-	for num.Cmp(zero) != 0 {
+	for i := 0; i < g.length; i++ {
 		num.DivMod(num, bigBase, m)
 		password = append(password, g.alphabet[int(m.Int64())])
 	}
 
+	// Reverse password,
+	// so the encoded characters appear in the same order as the read bytes.
 	for i, j := 0, len(password)-1; i < j; i, j = i+1, j-1 {
 		password[i], password[j] = password[j], password[i]
 	}
